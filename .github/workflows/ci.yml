@@ -26,7 +26,7 @@ jobs:
           toolchain: "1.88.0"
           components: rustfmt, clippy
       - name: Install the Protocol Buffers compiler
-        run: sudo apt-get update && sudo apt-get install --yes --no-install-recommends protobuf-compiler
+        run: sudo apt-get update && sudo apt-get install --yes --no-install-recommends protobuf-compiler libprotobuf-dev
       - name: Verify Zed package contract
         shell: bash
         run: |
