@@ -42,4 +42,7 @@ protoc --proto_path=proto --descriptor_set_out=/tmp/happy-wakey-core.pb \
   proto/happy_wakey/v1/core.proto
 ```
 
-The Cargo dependency on `happy-wakey-interfaces` is pinned to the reviewed immutable commit recorded in `Cargo.toml`. Do not replace it with a branch or an unpinned Git head.
+The Cargo dependency on `happy-wakey-interfaces` is pinned to reviewed commit
+`d6278ec8f6b2263678728b147a32dff92d52d8c8`, which includes the shared
+Bluetooth lifecycle lane. Do not replace it with a branch or an unpinned Git
+head.
