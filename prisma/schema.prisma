@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AlarmOccurrenceState {
+  scheduled
+  firing
+  acknowledged
+  snoozed
+  completed
+  missed
+  canceled
+}
+
+model Alarm {
+  id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ownerId        String            @map("owner_id")
+  label          String
+  localTime      DateTime          @map("local_time") @db.Time
+  timeZone       String            @map("time_zone")
+  weekdays       Json
+  enabled        Boolean           @default(true)
+  sound          String
+  volume         Decimal           @db.Decimal(4, 3)
+  gradualSeconds Int               @default(0) @map("gradual_seconds")
+  tags           Json              @default("[]")
+  generation     BigInt            @default(0)
+  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime          @default(now()) @map("updated_at") @db.Timestamptz
+  occurrences    AlarmOccurrence[]
+
+  @@index([ownerId, enabled, updatedAt(sort: Desc)], map: "happy_wakey_alarms_owner_enabled")
+  @@map("happy_wakey_alarms")
+}
+
+model AlarmOccurrence {
+  id                 String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  alarmId            String               @map("alarm_id") @db.Uuid
+  ownerId            String               @map("owner_id")
+  scheduledFor       DateTime             @map("scheduled_for") @db.Timestamptz
+  state              AlarmOccurrenceState
+  generation         BigInt               @default(0)
+  activeTransitionId String?              @map("active_transition_id") @db.Uuid
+  snoozeUntil        DateTime?            @map("snooze_until") @db.Timestamptz
+  acknowledgedAt     DateTime?            @map("acknowledged_at") @db.Timestamptz
+  completedAt        DateTime?            @map("completed_at") @db.Timestamptz
+  updatedAt          DateTime             @default(now()) @map("updated_at") @db.Timestamptz
+  alarm              Alarm                @relation(fields: [alarmId], references: [id], onDelete: Cascade)
+
+  @@unique([alarmId, scheduledFor])
+  @@index([ownerId, updatedAt(sort: Desc)], map: "happy_wakey_occurrences_owner")
+  @@map("happy_wakey_alarm_occurrences")
+}

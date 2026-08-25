@@ -25,6 +25,8 @@ jobs:
         with:
           toolchain: "1.88.0"
           components: rustfmt, clippy
+      - name: Install the Protocol Buffers compiler
+        run: sudo apt-get update && sudo apt-get install --yes --no-install-recommends protobuf-compiler
       - name: Verify Zed package contract
         shell: bash
         run: |
@@ -38,3 +40,41 @@ jobs:
       - run: cargo fmt --all -- --check
       - run: cargo clippy --all-targets --all-features --locked -- -D warnings
       - run: cargo test --all-targets --all-features --locked
+      - run: python3 scripts/validate_polyglot_contracts.py
+      - run: protoc --proto_path=proto --descriptor_set_out=/tmp/happy-wakey-core.pb proto/happy_wakey/v1/core.proto
+
+  drizzle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: drizzle
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: drizzle/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm audit --omit=dev
+
+  gorm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: gorm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: "1.24.x"
+          cache-dependency-path: gorm/go.sum
+      - run: go test ./...
+      - run: go vet ./...

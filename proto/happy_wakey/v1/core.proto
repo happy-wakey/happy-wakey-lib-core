@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package happy_wakey.v1;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+// Authentication is transport metadata established by a Shared Auth server
+// interceptor. No request accepts an owner, subject, bearer, role, or session.
+service AlarmCore {
+  rpc ListAlarms(google.protobuf.Empty) returns (ListAlarmsResponse);
+  rpc CreateAlarm(CreateAlarmRequest) returns (Alarm);
+  rpc TransitionOccurrence(TransitionOccurrenceRequest) returns (TransitionOccurrenceResponse);
+}
+
+message Alarm {
+  string id = 1;
+  string label = 2;
+  string local_time = 3;
+  string time_zone = 4;
+  repeated uint32 weekdays = 5;
+  bool enabled = 6;
+  string sound = 7;
+  float volume = 8;
+  uint32 gradual_seconds = 9;
+  repeated string tags = 10;
+  uint64 generation = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+}
+
+message ListAlarmsResponse {
+  repeated Alarm alarms = 1;
+}
+
+message CreateAlarmRequest {
+  string transition_id = 1;
+  string label = 2;
+  string local_time = 3;
+  string time_zone = 4;
+  repeated uint32 weekdays = 5;
+  bool enabled = 6;
+  string sound = 7;
+  float volume = 8;
+  uint32 gradual_seconds = 9;
+  repeated string tags = 10;
+}
+
+enum AlarmTransitionEvent {
+  ALARM_TRANSITION_EVENT_UNSPECIFIED = 0;
+  ALARM_TRANSITION_EVENT_FIRE = 1;
+  ALARM_TRANSITION_EVENT_ACKNOWLEDGE = 2;
+  ALARM_TRANSITION_EVENT_SNOOZE = 3;
+  ALARM_TRANSITION_EVENT_COMPLETE = 4;
+  ALARM_TRANSITION_EVENT_MARK_MISSED = 5;
+  ALARM_TRANSITION_EVENT_CANCEL = 6;
+}
+
+message TransitionOccurrenceRequest {
+  string occurrence_id = 1;
+  string transition_id = 2;
+  uint64 expected_generation = 3;
+  AlarmTransitionEvent event = 4;
+  optional google.protobuf.Timestamp snooze_until = 5;
+  google.protobuf.Timestamp client_time = 6;
+}
+
+message TransitionOccurrenceResponse {
+  string disposition = 1;
+  uint64 generation = 2;
+  string error_code = 3;
+}

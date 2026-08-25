@@ -1,4 +1,6 @@
 /target/
+/drizzle/dist/
+/drizzle/node_modules/
 .zed/
 zed_modules/
 .env
