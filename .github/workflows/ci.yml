@@ -41,7 +41,7 @@ jobs:
       - run: cargo clippy --all-targets --all-features --locked -- -D warnings
       - run: cargo test --all-targets --all-features --locked
       - run: python3 scripts/validate_polyglot_contracts.py
-      - run: protoc --proto_path=proto --descriptor_set_out=/tmp/happy-wakey-core.pb proto/happy_wakey/v1/core.proto
+      - run: protoc --proto_path=proto --proto_path=/usr/include --descriptor_set_out=/tmp/happy-wakey-core.pb proto/happy_wakey/v1/core.proto
 
   drizzle:
     runs-on: ubuntu-latest
