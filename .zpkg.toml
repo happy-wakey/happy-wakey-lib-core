@@ -1,0 +1,26 @@
+[package]
+org = "happy-wakey"
+name = "happy-wakey-lib-core"
+version = "0.1.0"
+description = "Role-aware Happy Wakey domain and SeaORM core"
+license = "MIT"
+keywords = ["alarms", "contracts", "seaorm", "postgresql", "rust"]
+
+[package.repository]
+vcs = "git"
+url = "https://github.com/happy-wakey/happy-wakey-lib-core"
+
+[dependencies]
+"happy-wakey/happy-wakey-interfaces" = "^0.1.0"
+
+[targets.repository]
+dir = "."
+adapter = "rust"
+
+[publish]
+include_readme = true
+tag_format = "v{version}"
+exclude = [".env", ".env.*", ".zed/**", "zed_modules/**", "target/**", "**/*.log", ".DS_Store"]
+
+[scripts]
+test = "cargo test --all-targets --all-features --locked"

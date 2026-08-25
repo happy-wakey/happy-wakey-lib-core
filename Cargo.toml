@@ -1,0 +1,23 @@
+[package]
+name = "happy-wakey-lib-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+license = "MIT"
+description = "Role-aware Happy Wakey domain and SeaORM core"
+repository = "https://github.com/happy-wakey/happy-wakey-lib-core"
+
+[features]
+default = ["read-only"]
+read-only = []
+read-write = ["read-only"]
+
+[dependencies]
+happy-wakey-interfaces = { git = "https://github.com/happy-wakey/happy-wakey-interfaces.git", rev = "37e05f1128a8260b86d36c79e0d4d05f8241a6e0" }
+sea-orm = { version = "1.1", default-features = false, features = ["macros", "runtime-tokio-rustls", "sqlx-postgres"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+[lints.rust]
+unsafe_code = "forbid"
