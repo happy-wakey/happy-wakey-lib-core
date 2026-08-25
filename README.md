@@ -1,6 +1,18 @@
 # happy-wakey-lib-core
 
-The shared Happy Wakey domain and persistence library. It imports the immutable public contracts from `happy-wakey-interfaces`, adds implementation code and SeaORM connection policy, and is the only library that API and trusted web processes should use for direct database access.
+The shared Happy Wakey domain and persistence library. It imports the immutable public contracts from `happy-wakey-interfaces` and supplies equivalent SeaORM, Drizzle, Prisma, GORM, and gRPC integration surfaces.
+
+| Surface | Location | Boundary |
+| --- | --- | --- |
+| SeaORM | `src/lib.rs` | Rust read/write capabilities; read-only by default |
+| Drizzle | `drizzle/` | Typed PostgreSQL schema and subject predicate builder |
+| Prisma | `prisma/schema.prisma` | PostgreSQL/CockroachDB declarative ORM schema |
+| GORM | `gorm/` | Compiled Go model and subject-scoped repository |
+| gRPC | `proto/happy_wakey/v1/core.proto` | Credential-free request messages; Shared Auth is interceptor metadata |
+
+The declarative SQL in `happy-wakey-interfaces` remains authoritative. These
+ORM views must change with it and the polyglot validation gate checks the
+security-critical table, owner, and RPC invariants.
 
 ## Boundaries
 
@@ -23,6 +35,14 @@ zed install --adapter rust
 zed run cargo test --all-targets --all-features --locked
 zed run cargo fmt --all -- --check
 zed run cargo clippy --all-targets --all-features --locked -- -D warnings
+python3 scripts/validate_polyglot_contracts.py
+(cd drizzle && npm ci && npm test)
+(cd gorm && go test ./...)
+protoc --proto_path=proto --descriptor_set_out=/tmp/happy-wakey-core.pb \
+  proto/happy_wakey/v1/core.proto
 ```
 
-The Cargo dependency on `happy-wakey-interfaces` is pinned to the reviewed immutable commit recorded in `Cargo.toml`. Do not replace it with a branch or an unpinned Git head.
+The Cargo dependency on `happy-wakey-interfaces` is pinned to reviewed commit
+`d6278ec8f6b2263678728b147a32dff92d52d8c8`, which includes the shared
+Bluetooth lifecycle lane. Do not replace it with a branch or an unpinned Git
+head.

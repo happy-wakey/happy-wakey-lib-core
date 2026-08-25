@@ -2,9 +2,9 @@
 org = "happy-wakey"
 name = "happy-wakey-lib-core"
 version = "0.1.0"
-description = "Role-aware Happy Wakey domain and SeaORM core"
+description = "Role-aware Happy Wakey SeaORM, Drizzle, Prisma, GORM, and gRPC core"
 license = "MIT"
-keywords = ["alarms", "contracts", "seaorm", "postgresql", "rust"]
+keywords = ["alarms", "seaorm", "drizzle", "prisma", "gorm", "grpc"]
 
 [package.repository]
 vcs = "git"
@@ -20,7 +20,7 @@ adapter = "rust"
 [publish]
 include_readme = true
 tag_format = "v{version}"
-exclude = [".env", ".env.*", ".zed/**", "zed_modules/**", "target/**", "**/*.log", ".DS_Store"]
+exclude = [".env", ".env.*", ".zed/**", "zed_modules/**", "target/**", "drizzle/node_modules/**", "drizzle/dist/**", "**/*.log", ".DS_Store"]
 
 [scripts]
-test = "cargo test --all-targets --all-features --locked"
+test = "cargo test --all-targets --all-features --locked && python3 scripts/validate_polyglot_contracts.py"
