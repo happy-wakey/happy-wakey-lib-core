@@ -1,4 +1,6 @@
 **/target/
+tmp/
+temp/
 /drizzle/dist/
 /drizzle/node_modules/
 .zed/
