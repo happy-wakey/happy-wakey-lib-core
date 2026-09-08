@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "happy-wakey.lib-core-schema-authority.v1",
+  "repository": "happy-wakey/happy-wakey-interfaces",
+  "revision": "3b9161f5314417cfcccd2e76c32f66d84c2eea0a",
+  "independentSources": [
+    "typespec/main.tsp",
+    "schemas/morning-briefing.schema.json"
+  ],
+  "declarativeSql": "sql/schema.sql",
+  "postgresRls": "sql/postgres-rls.sql",
+  "runtimeBoundary": "happy-wakey/happy-wakey-orm-core",
+  "migrationPolicy": "declarative-review-only"
+}

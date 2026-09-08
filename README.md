@@ -42,7 +42,8 @@ protoc --proto_path=proto --descriptor_set_out=/tmp/happy-wakey-core.pb \
   proto/happy_wakey/v1/core.proto
 ```
 
-The Cargo dependency on `happy-wakey-interfaces` is pinned to reviewed commit
-`d6278ec8f6b2263678728b147a32dff92d52d8c8`, which includes the shared
-Bluetooth lifecycle lane. Do not replace it with a branch or an unpinned Git
-head.
+The Cargo dependency and `schema-authority.json` pin `happy-wakey-interfaces`
+at reviewed commit `3b9161f5314417cfcccd2e76c32f66d84c2eea0a`. That revision contains the
+independent TypeSpec/JSON Schema validators, reviewed SQL intersection and
+PostgreSQL/Supabase RLS overlay. Do not replace it with a branch or an unpinned
+Git head.

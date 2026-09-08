@@ -392,7 +392,7 @@ dependencies = [
 [[package]]
 name = "happy-wakey-interfaces"
 version = "0.2.0"
-source = "git+https://github.com/happy-wakey/happy-wakey-interfaces.git?rev=35b25d5b49cfd469d633914993450c62f25b36b8#35b25d5b49cfd469d633914993450c62f25b36b8"
+source = "git+https://github.com/happy-wakey/happy-wakey-interfaces.git?rev=3b9161f5314417cfcccd2e76c32f66d84c2eea0a#3b9161f5314417cfcccd2e76c32f66d84c2eea0a"
 dependencies = [
  "schemars",
  "serde",
