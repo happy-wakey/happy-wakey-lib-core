@@ -13,6 +13,68 @@ service AlarmCore {
   rpc TransitionOccurrence(TransitionOccurrenceRequest) returns (TransitionOccurrenceResponse);
 }
 
+// Tenant and subject are injected by the Shared Auth interceptor; callers can
+// never select another authorization scope in a request body.
+service MorningIntelligenceCore {
+  rpc GetMorningBriefing(GetMorningBriefingRequest) returns (MorningBriefingSummary);
+  rpc ListUsefulDeepLinks(ListUsefulDeepLinksRequest) returns (ListUsefulDeepLinksResponse);
+  rpc RecordUsefulnessDecision(RecordUsefulnessDecisionRequest) returns (IdempotentWriteResponse);
+  rpc RecordEmbedding(RecordEmbeddingRequest) returns (IdempotentWriteResponse);
+}
+
+message GetMorningBriefingRequest {
+  string local_date = 1;
+}
+
+message MorningBriefingSummary {
+  string id = 1;
+  string local_date = 2;
+  string title = 3;
+  google.protobuf.Timestamp generated_at = 4;
+  uint32 card_count = 5;
+}
+
+message ListUsefulDeepLinksRequest {
+  uint32 limit = 1;
+}
+
+message UsefulDeepLink {
+  string source_item_id = 1;
+  string provider = 2;
+  string target_url = 3;
+  double usefulness_score = 4;
+  google.protobuf.Timestamp expires_at = 5;
+}
+
+message ListUsefulDeepLinksResponse {
+  repeated UsefulDeepLink links = 1;
+}
+
+message RecordUsefulnessDecisionRequest {
+  string source_item_id = 1;
+  string model = 2;
+  string policy_version = 3;
+  string content_sha256 = 4;
+  double score = 5;
+  bool designated_useful = 6;
+  repeated string reasons = 7;
+  string rationale = 8;
+  string idempotency_key = 9;
+}
+
+message RecordEmbeddingRequest {
+  string resource_type = 1;
+  string resource_id = 2;
+  string model = 3;
+  string content_sha256 = 4;
+  repeated float vector = 5;
+  string idempotency_key = 6;
+}
+
+message IdempotentWriteResponse {
+  bool inserted = 1;
+}
+
 message Alarm {
   string id = 1;
   string label = 2;

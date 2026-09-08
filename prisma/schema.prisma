@@ -56,3 +56,172 @@ model AlarmOccurrence {
   @@index([ownerId, updatedAt(sort: Desc)], map: "happy_wakey_occurrences_owner")
   @@map("happy_wakey_alarm_occurrences")
 }
+
+model Tenant {
+  id            String   @id
+  accountKind   String   @map("account_kind")
+  displayName   String   @map("display_name")
+  seatLimit     Int      @default(1) @map("seat_limit")
+  policyVersion String   @map("policy_version")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("happy_wakey_tenants")
+}
+
+model TenantMembership {
+  tenantId String   @map("tenant_id")
+  subjectId String  @map("subject_id")
+  role      String
+  state     String   @default("active")
+  joinedAt  DateTime @default(now()) @map("joined_at") @db.Timestamptz
+
+  @@id([tenantId, subjectId])
+  @@map("happy_wakey_tenant_memberships")
+}
+
+model ConnectorConsent {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId         String    @map("tenant_id")
+  subjectId        String    @map("subject_id")
+  connector        String
+  state            String
+  scopes           Json      @default("[]")
+  sourceAccountRef String    @map("source_account_ref")
+  credentialRef    String?   @map("credential_ref")
+  grantedAt        DateTime? @map("granted_at") @db.Timestamptz
+  expiresAt        DateTime? @map("expires_at") @db.Timestamptz
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamptz
+  policyVersion    String    @map("policy_version")
+  updatedAt        DateTime  @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@unique([tenantId, subjectId, connector, sourceAccountRef])
+  @@map("happy_wakey_connector_consents")
+}
+
+model SourceItemCandidate {
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId              String    @map("tenant_id")
+  subjectId             String    @map("subject_id")
+  consentId             String    @map("consent_id") @db.Uuid
+  provider              String
+  sourceItemRef         String    @map("source_item_ref")
+  senderClass           String    @map("sender_class")
+  receivedAt            DateTime  @map("received_at") @db.Timestamptz
+  threadRef             String    @map("thread_ref")
+  encryptedContentRef   String    @map("encrypted_content_ref")
+  contentSha256         String    @map("content_sha256")
+  hasDirectReplyRequest Boolean   @default(false) @map("has_direct_reply_request")
+  dueAt                 DateTime? @map("due_at") @db.Timestamptz
+  retentionExpiresAt    DateTime  @map("retention_expires_at") @db.Timestamptz
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@unique([tenantId, subjectId, provider, sourceItemRef])
+  @@index([tenantId, subjectId, receivedAt(sort: Desc)], map: "happy_wakey_candidates_pending")
+  @@map("happy_wakey_source_item_candidates")
+}
+
+model UsefulnessDecision {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId         String   @map("tenant_id")
+  subjectId        String   @map("subject_id")
+  sourceItemId     String   @map("source_item_id") @db.Uuid
+  model            String
+  policyVersion    String   @map("policy_version")
+  contentSha256    String   @map("content_sha256")
+  score            Decimal  @db.Decimal(5, 4)
+  designatedUseful Boolean  @map("designated_useful")
+  reasons          Json     @default("[]")
+  rationale        String
+  idempotencyKey   String   @map("idempotency_key")
+  evaluatedAt      DateTime @default(now()) @map("evaluated_at") @db.Timestamptz
+
+  @@unique([tenantId, subjectId, idempotencyKey])
+  @@map("happy_wakey_usefulness_decisions")
+}
+
+model SafeDeepLink {
+  id                       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId                 String   @map("tenant_id")
+  subjectId                String   @map("subject_id")
+  sourceItemId             String   @map("source_item_id") @db.Uuid
+  decisionId               String   @map("decision_id") @db.Uuid
+  provider                 String
+  targetUrl                String   @map("target_url")
+  expiresAt                DateTime @map("expires_at") @db.Timestamptz
+  requiresReauthentication Boolean  @default(true) @map("requires_reauthentication")
+  feedFallbackAllowed      Boolean  @default(false) @map("feed_fallback_allowed")
+  createdAt                DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@unique([tenantId, subjectId, sourceItemId, decisionId])
+  @@map("happy_wakey_safe_deep_links")
+}
+
+model MorningBriefing {
+  id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId             String   @map("tenant_id")
+  subjectId            String   @map("subject_id")
+  localDate            DateTime @map("local_date") @db.Date
+  timeZone             String   @map("time_zone")
+  title                String
+  cards                Json     @default("[]")
+  cardCount            Int      @default(0) @map("card_count")
+  suppressedItemCount  Int      @default(0) @map("suppressed_item_count")
+  audioUrl             String?  @map("audio_url")
+  audioDurationSeconds Int?     @map("audio_duration_seconds")
+  generatedAt          DateTime @default(now()) @map("generated_at") @db.Timestamptz
+  validUntil           DateTime @map("valid_until") @db.Timestamptz
+
+  @@unique([tenantId, subjectId, localDate])
+  @@map("happy_wakey_morning_briefings")
+}
+
+model Embedding {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId         String   @map("tenant_id")
+  subjectId        String   @map("subject_id")
+  resourceType     String   @map("resource_type")
+  resourceId       String   @map("resource_id")
+  model            String
+  contentHash      String   @map("content_hash")
+  dimensions       Int
+  embedding        Float[]  @db.Real
+  retentionClass   String   @default("ephemeral") @map("retention_class")
+  idempotencyKey   String   @map("idempotency_key")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  @@unique([tenantId, subjectId, idempotencyKey])
+  @@map("happy_wakey_embeddings")
+}
+
+model CorrelationFinding {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId           String   @map("tenant_id")
+  subjectId          String   @map("subject_id")
+  metricA            String   @map("metric_a")
+  metricB            String   @map("metric_b")
+  coefficient        Decimal  @db.Decimal(8, 7)
+  pValue             Decimal  @map("p_value") @db.Decimal(8, 7)
+  confidenceLow      Decimal  @map("confidence_low") @db.Decimal(8, 7)
+  confidenceHigh     Decimal  @map("confidence_high") @db.Decimal(8, 7)
+  sampleSize         Int      @map("sample_size")
+  correction         String
+  causalClaimAllowed Boolean  @default(false) @map("causal_claim_allowed")
+  discoveredAt       DateTime @default(now()) @map("discovered_at") @db.Timestamptz
+
+  @@map("happy_wakey_correlation_findings")
+}
+
+model ChatSession {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId            String    @map("tenant_id")
+  subjectId           String    @map("subject_id")
+  audience            String
+  allowedSearchScopes Json      @default("[]") @map("allowed_search_scopes")
+  oresChatSessionRef  String    @map("ores_chat_session_ref")
+  openedAt            DateTime  @default(now()) @map("opened_at") @db.Timestamptz
+  expiresAt           DateTime  @map("expires_at") @db.Timestamptz
+  closedAt            DateTime? @map("closed_at") @db.Timestamptz
+
+  @@map("happy_wakey_chat_sessions")
+}
