@@ -20,3 +20,4 @@ temp/
 .tmp/
 tmp/worktrees/
 **/tmp/worktrees/
+# Sanctioned scratch locations - AGENTS.md requires both, trailing-slash form
