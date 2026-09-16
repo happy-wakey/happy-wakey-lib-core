@@ -21,3 +21,6 @@ temp/
 tmp/worktrees/
 **/tmp/worktrees/
 # Sanctioned scratch locations - AGENTS.md requires both, trailing-slash form
+
+# machine-local symlink to ORESoftware/my-ai AGENTS.md; never committed
+.ores/
