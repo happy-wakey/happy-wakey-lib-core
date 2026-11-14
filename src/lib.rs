@@ -136,9 +136,12 @@ impl WriteContext {
 }
 
 fn validate_subject(subject: &str) -> Result<(), DbErr> {
-    if subject.is_empty() || subject.len() > 512 || subject.chars().any(char::is_whitespace) {
+    if subject.is_empty()
+        || subject.len() > 512
+        || subject.chars().any(|c| c.is_whitespace() || c.is_control())
+    {
         return Err(DbErr::Custom(
-            "verified subject must be non-empty, bounded, and whitespace-free".to_owned(),
+            "verified subject must be non-empty, bounded, and free of whitespace and controls".to_owned(),
         ));
     }
     Ok(())
@@ -226,6 +229,8 @@ mod tests {
     fn subject_validation_is_fail_closed() {
         assert!(validate_subject("").is_err());
         assert!(validate_subject("subject with spaces").is_err());
+        assert!(validate_subject("user\\u{0000}injected").is_err());
+        assert!(validate_subject("user\\u{001b}[31m").is_err());
         assert!(validate_subject(&"x".repeat(513)).is_err());
         assert!(validate_subject("customer:01J00000000000000000000000").is_ok());
     }
