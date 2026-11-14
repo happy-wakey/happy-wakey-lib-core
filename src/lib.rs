@@ -229,8 +229,8 @@ mod tests {
     fn subject_validation_is_fail_closed() {
         assert!(validate_subject("").is_err());
         assert!(validate_subject("subject with spaces").is_err());
-        assert!(validate_subject("user\\u{0000}injected").is_err());
-        assert!(validate_subject("user\\u{001b}[31m").is_err());
+        assert!(validate_subject("user\u{0000}injected").is_err());
+        assert!(validate_subject("user\u{001b}[31m").is_err());
         assert!(validate_subject(&"x".repeat(513)).is_err());
         assert!(validate_subject("customer:01J00000000000000000000000").is_ok());
     }
