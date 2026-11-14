@@ -141,7 +141,8 @@ fn validate_subject(subject: &str) -> Result<(), DbErr> {
         || subject.chars().any(|c| c.is_whitespace() || c.is_control())
     {
         return Err(DbErr::Custom(
-            "verified subject must be non-empty, bounded, and free of whitespace and controls".to_owned(),
+            "verified subject must be non-empty, bounded, and free of whitespace and controls"
+                .to_owned(),
         ));
     }
     Ok(())
